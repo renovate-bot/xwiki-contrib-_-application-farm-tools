@@ -33,7 +33,7 @@
   <artifactId>application-farm-importer</artifactId>
   <packaging>xar</packaging>
   <name>Farm importer</name>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <description>Allows a user to import a xar in multiple wikis</description>
   <developers>
     <developer>
@@ -45,8 +45,7 @@
    <connection>scm:git:git://github.com/xwiki-contrib/application-farm-importer.git</connection>
    <developerConnection>scm:git:git@github.com:xwiki-contrib/application-farm-importer.git</developerConnection>
    <url>https://github.com/xwiki-contrib/application-farm-importer</url>
-   <tag>HEAD</tag>
-  </scm>
+ </scm>
  <distributionManagement>
    <repository>
      <id>xwiki-staging</id>

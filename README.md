@@ -1,0 +1,1 @@
+Allows users to push a XAR on multiple wikis.

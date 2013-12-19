@@ -304,8 +304,8 @@
   #set($xar = $doc.getAttachment($xar))
   ##------------------------------------------------------
   #*  The method call 'importXarInWiki' should return 2 for INSTALL_OK and 4 for INSTALL_ERROR according to
-   *  https://github.com/mstaicu/xwiki-platform/blob/master/xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/plugin/packaging/DocumentInfo.java#L57
-   * The actual method that gets called and returns the status of 2 or 4 is https://github.com/mstaicu/xwiki-platform/blob/master/xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/plugin/packaging/Package.java#L619
+   *  https://github.com/xwiki/xwiki-platform/blob/master/xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/plugin/packaging/DocumentInfo.java#L57
+   * The actual method that gets called and returns the status of 2 or 4 is https://github.com/xwiki/xwiki-platform/blob/master/xwiki-platform-core/xwiki-platform-oldcore/src/main/java/com/xpn/xwiki/plugin/packaging/Package.java#L619
   *#
   ##------------------------------------------------------
   #set($result = $importtool.importXarInWiki($xar, $wiki))

@@ -115,7 +115,7 @@
     if(this.wikis.size() &gt; 0 &amp;&amp; this.runnable &amp;&amp; this.attachmentName !== '') {
       var wiki = this.wikis.shift();
 
-      var getURL = "${xwiki.getDocument('Admin.FarmImporterServicePage').getExternalURL('get')}";
+      var getURL = "${xwiki.getDocument('Admin.FarmImporterServicePage').getURL('get')}";
 
       new Ajax.Request(getURL, {
         method: 'GET',
@@ -179,7 +179,7 @@ function registerButtonListeners(farmImporter){
 
     //Populate the wikis array
     farmImporter.form.getInputs('checkbox').each(function(element){
-      if(element.value !== ''){
+      if(element.value !== '' &amp;&amp; element.checked &amp;&amp; farmImporter.wikis.indexOf(element.value) &lt; 0){
         farmImporter.wikis.push(element.value);
       }
     });

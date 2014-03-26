@@ -103,10 +103,10 @@ This application allows to modify properties of a document by applying a regex o
   &lt;form id="performform" action="$doc.getURL('view')" method="post"&gt;
     &lt;div&gt;
       &lt;input type="hidden" name="xaction" value="perform"/&gt;
-      &lt;input type="hidden" name="docfullname" value="$docFullName" /&gt;
-      &lt;input type="hidden" name="property" value="$property"/&gt;
-      &lt;input type="hidden" name="regex" value="$regex"/&gt;
-      &lt;input type="hidden" name="replacement" value="$replacement"/&gt;
+      &lt;input type="hidden" name="docfullname" value="$escapetool.xml($docFullName)" /&gt;
+      &lt;input type="hidden" name="property" value="$escapetool.xml($property)"/&gt;
+      &lt;input type="hidden" name="regex" value="$escapetool.xml($regex)"/&gt;
+      &lt;input type="hidden" name="replacement" value="$escapetool.xml($replacement)"/&gt;
       #foreach($wiki in $request.getParameterValues('wikis'))
         &lt;input type="hidden" name="wikis" value="$wiki" /&gt;
       #end

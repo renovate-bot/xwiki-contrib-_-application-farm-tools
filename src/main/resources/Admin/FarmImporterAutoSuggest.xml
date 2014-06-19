@@ -30,7 +30,7 @@
   #set($attachments = $xwiki.getDocument('Admin.FarmImporter').getAttachmentList())
   #foreach($attachment in $attachments)
     #set($attachmentName = $attachment.getFilename())
-    #if($attachmentName.contains("${input}"))
+    #if($attachmentName.contains("${input}") || $attachmentName.toLowerCase().contains("${input}"))
       &lt;rs id="1"&gt;$attachmentName&lt;/rs&gt;
     #end
   #end  

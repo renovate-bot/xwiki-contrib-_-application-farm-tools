@@ -377,12 +377,12 @@ Event.observe(document, 'xwiki:dom:loaded', function() {
   &lt;form id="importform"&gt;
     &lt;input id="xar-package" type="text" name="xar" size="60" placeholder='Name of the attachment'/&gt;&lt;br /&gt;
     &lt;span id="selectorspan" class="hidden"&gt;&lt;input id="selector" type="checkbox" checked="checked" value='' /&gt;&lt;strong&gt;Select/Deselect all&lt;/strong&gt;&lt;/span&gt;
-    #set($wikis = $xwiki.wikimanager.getAllWikis())        
+    #set($wikis = $services.wiki.getAll())        
       #foreach($wiki in $wikis)
-        #if("$!{wiki}" != "$!{xwiki}")
+        #if("$!{wiki.id}" != "$!{xwiki}")
           &lt;span class="xwiki-form-listclass"&gt;
-            &lt;input name="wikis" type="checkbox" value="$!escapetool.xml($wiki)" checked="checked" class='toggleable'/&gt;
-            $wiki - &lt;a href="$xwiki.getURL("${wiki}:Main.WebHome")"&gt;$xwiki.wikimanager.getWikiDocument($wiki.toString()).getServer()&lt;/a&gt;
+            &lt;input name="wikis" type="checkbox" value="$!escapetool.xml($wiki.id)" checked="checked" class='toggleable'/&gt;
+            $wiki.id - &lt;a href="$xwiki.getURL("${wiki.id}:Main.WebHome")"&gt;$wiki.defaultAlias&lt;/a&gt;
           &lt;/span&gt;              
         #end
       #end

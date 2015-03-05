@@ -29,7 +29,7 @@
     </dependency>
     <dependency>
       <groupId>org.xwiki.contrib.farmtools</groupId>
-      <artifactId>application-farm-updater</artifactId>
+      <artifactId>application-farm-property-updater</artifactId>
       <version>${project.version}</version>
       <type>xar</type>
       <scope>runtime</scope>

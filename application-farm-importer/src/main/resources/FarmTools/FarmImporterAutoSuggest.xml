@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xwikidoc>
-  <web>Admin</web>
+  <web>FarmTools</web>
   <name>FarmImporterAutoSuggest</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent> </parent>
+  <parent>FarmTools.FarmImporter</parent>
   <creator>xwiki:XWiki.Admin</creator>
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
@@ -21,13 +21,13 @@
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
-  <hidden>false</hidden>
+  <hidden>true</hidden>
   <content>{{velocity}}
 #set($input = $request.get("input").toLowerCase())
 #set($discard = $response.setContentType("text/xml"))
 &lt;results&gt;
   ## We're hardcoding the document name because all the attachments will be on that document
-  #set($attachments = $xwiki.getDocument('Admin.FarmImporter').getAttachmentList())
+  #set($attachments = $xwiki.getDocument('FarmTools.FarmImporter').getAttachmentList())
   #foreach($attachment in $attachments)
     #set($attachmentName = $attachment.getFilename())
     #if($attachmentName.contains("${input}") || $attachmentName.toLowerCase().contains("${input}"))

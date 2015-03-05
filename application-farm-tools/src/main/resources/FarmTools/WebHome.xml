@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc version="1.1">
+  <web>FarmTools</web>
+  <name>WebHome</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1425555202000</creationDate>
+  <parent>Main.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1425555565000</date>
+  <contentUpdateDate>1425555551000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Farm Tools</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>= Farm Tools =
+
+This is a bundle of tools for XWiki farm administrator.
+The bundle is actually composed of:
+ * [[Farm importer&gt;&gt;FarmImporter]]
+ * Farm property updater
+
+== Farm Importer ==
+
+Ease importing a XAR package on multiple wikis.
+
+Instructions:
+
+* Attach the desired .xar to the [[FarmImporter]] page
+* Autocomplete will help you while you type in the xar input of the form
+* You can start the xar import on the selected batch of wikis by pressing the 'Start' button. You can also cancel the operation on the upcoming wikis by pressing the 'Cancel' button
+
+== Farm Property Updater ==
+
+Batch property updater for objects in multiple wikis.
+It is currently splitted in two separate tools:
+ * [[Farm Field Value Updater&gt;&gt;FarmFieldValueUpdater]]
+ * [[Farm Preferences Updater&gt;&gt;FarmPreferencesUpdater]]
+
+Both tools allows to change the value of a given object property from one value to another. You select the name of the document containing the object to change (without wiki prefix), and the same document in all wikis will get its object property updated. The object selected is always the first object matching the object class to be updated.
+
+In the Farm Field Value Updater, you can freely choose the object class you want to update, and you can set a constant value to one of its properties.
+
+In the Farm Preferences Updater, the object is always of class 'XWiki.XWikiPreferences', so only properties of this class could be updated. The update is done using a regex and a replacement value, so you have the ability to manipulate the existing value to produce the new one.
+Additionnaly, in this second tool, there is a special property named "doc.parent", which allows you to update the parent of any choosen document using the same regex mechanism.
+</content>
+</xwikidoc>

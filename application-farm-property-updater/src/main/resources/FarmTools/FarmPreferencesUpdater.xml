@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <xwikidoc>
-<web>Admin</web>
-<name>FarmPreferencesUpdater</name>
-<language></language>
-<defaultLanguage></defaultLanguage>
-<translation>0</translation>
-<parent>Admin.WebHome</parent>
-<creator>xwiki:XWiki.Admin</creator>
-<author>xwiki:XWiki.Admin</author>
-<customClass></customClass>
-<contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-<creationDate>1395617001000</creationDate>
-<date>1395620782000</date>
-<contentUpdateDate>1395620782000</contentUpdateDate>
-<version>1.1</version>
-<title>Farm Preferences Updater</title>
-<defaultTemplate></defaultTemplate>
-<validationScript></validationScript>
-<comment></comment>
-<minorEdit>false</minorEdit>
-<syntaxId>xwiki/2.0</syntaxId>
-<hidden>false</hidden>
-<content>{{velocity}}
+  <web>FarmTools</web>
+  <name>FarmPreferencesUpdater</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>FarmTools.WebHome</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1395617001000</creationDate>
+  <date>1395620782000</date>
+  <contentUpdateDate>1395620782000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Farm Preferences Updater</title>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.0</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
 #set($xaction = "$!{request.getParameter('xaction')}")
 #set($prefsDoc = $xwiki.getDocument("XWiki.XWikiPreferences"))
 
@@ -58,7 +59,7 @@ This application allows to modify properties of a document by applying a regex o
       &lt;dl&gt;
         &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
         &lt;dd&gt;
-          #set($wikis = $xwiki.wikimanager.getAllWikis())
+          #set($wikis = $services.wiki.getAllIds())
           #set($aThirdOfWikis = $wikis.size() / 3)
           #set($twoThirdsOfWikis = $aThirdOfWikis * 2)
           &lt;div class="column third"&gt;
@@ -144,4 +145,5 @@ This application allows to modify properties of a document by applying a regex o
     #end
   #end
 #end
-{{/velocity}}</content></xwikidoc>
+{{/velocity}}</content>
+</xwikidoc>

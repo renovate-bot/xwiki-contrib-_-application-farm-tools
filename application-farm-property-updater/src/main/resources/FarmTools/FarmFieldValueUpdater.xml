@@ -47,13 +47,13 @@ This application allows to replace a field value for an object of a document by 
       &lt;dl&gt;
         &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
         &lt;dd&gt;
-          #set($wikis = $services.wiki.getAllIds())
+          #set($wikis = $services.wiki.getAll())
           #set($aThirdOfWikis = $wikis.size() / 3)
           #set($twoThirdsOfWikis = $aThirdOfWikis * 2)
           &lt;div class="column third"&gt;
           &lt;ul&gt;
-          #foreach($wiki in $wikis)
-            &lt;li&gt;&lt;input name="wikis" type="checkbox" value="$wiki" &gt;$wiki&lt;/input&gt;&lt;/li&gt;
+          #foreach($wiki in $sorttool.sort($wikis, ['id']))
+            &lt;li&gt;&lt;input name="wikis" type="checkbox" value="$wiki.id" &gt;$wiki.id&lt;/input&gt;&lt;/li&gt;
             #if ($velocityCount == $aThirdOfWikis || $velocityCount == $twoThirdsOfWikis)
               &lt;/ul&gt;&lt;/div&gt;
               &lt;div class="column third"&gt;&lt;ul&gt;

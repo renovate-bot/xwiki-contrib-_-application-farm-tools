@@ -89,5 +89,6 @@
     <module>application-farm-tools</module>
     <module>application-farm-importer</module>
     <module>application-farm-property-updater</module>
+    <module>application-farm-pages-deleter</module>
   </modules>
 </project>

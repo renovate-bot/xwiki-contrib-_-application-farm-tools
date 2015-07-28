@@ -49,5 +49,16 @@ In the Farm Field Value Updater, you can freely choose the object class you want
 
 In the Farm Preferences Updater, the object is always of class 'XWiki.XWikiPreferences', so only properties of this class could be updated. The update is done using a regex and a replacement value, so you have the ability to manipulate the existing value to produce the new one.
 Additionnaly, in this second tool, there is a special property named "doc.parent", which allows you to update the parent of any choosen document using the same regex mechanism.
+
+== Farm Class Manager ==
+
+Mass update a class on multiple wikis.
+[[Farm Class Manager&gt;&gt;ClassManagerWikis]]
+
+== Farm Pages Deleter ==
+
+Delete a set of pages from multiple wikis.
+[[Farm Pages Deleter&gt;&gt;FarmPagesDeleter]]
+
 </content>
 </xwikidoc>

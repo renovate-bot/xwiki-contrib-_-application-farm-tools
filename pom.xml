@@ -91,5 +91,6 @@
     <module>application-farm-property-updater</module>
     <module>application-farm-pages-deleter</module>
     <module>application-farm-class-manager</module>
+    <module>application-farm-defaultlanguage-updater</module>
   </modules>
 </project>

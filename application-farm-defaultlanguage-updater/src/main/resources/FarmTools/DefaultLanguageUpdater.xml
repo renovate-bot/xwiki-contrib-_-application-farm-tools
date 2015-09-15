@@ -24,7 +24,9 @@
   #set($discard = $xwiki.jsx.use("FarmTools.DefaultLanguageUpdater"))&#xd;
   {{html}}&#xd;
   &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform">&#xd;
-    &lt;div>&lt;input type="hidden" name="xaction" value="prepare"/>&lt;/div>&#xd;
+    #if ("$!request.secretagent" != '007')&#xd;
+      &lt;div>&lt;input type="hidden" name="xaction" value="prepare"/>&lt;/div>&#xd;
+    #end&#xd;
     &lt;dl>&#xd;
       &lt;dt>&lt;label>Spaces (separated by comma) :&lt;/label>&lt;/dt>&#xd;
       &lt;dd>&#xd;
@@ -58,6 +60,10 @@
     &lt;/dl>&#xd;
     &lt;div class="buttonwrapper">&#xd;
       &lt;input class="button" type="submit" value="Preview"/>&#xd;
+      #if ("$!request.secretagent" == '007')&#xd;
+        &lt;input type="hidden" name="xaction" value="perform"/>&#xd;
+        &lt;input class="button" type="submit" value="Do change default language"/>&#xd;
+      #end&#xd;
     &lt;/div>&#xd;
   &lt;/form>&#xd;
   {{/html}}&#xd;

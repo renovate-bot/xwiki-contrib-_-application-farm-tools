@@ -1,9 +1,10 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <xwikidoc version="1.1">
   <web>FarmTools</web>
   <name>DefaultLanguageUpdater</name>
   <language/>
-  <defaultLanguage />
+  <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
   <creationDate>1429883072000</creationDate>
@@ -18,136 +19,136 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>false</hidden>
-  <content>{{velocity}}&#xd;
-#set($xaction = "$!{request.getParameter('xaction')}")&#xd;
-#if($xaction == '')&#xd;
-  #set($discard = $xwiki.jsx.use("FarmTools.DefaultLanguageUpdater"))&#xd;
-  {{html}}&#xd;
-  &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform">&#xd;
-    #if ("$!request.secretagent" != '007')&#xd;
-      &lt;div>&lt;input type="hidden" name="xaction" value="prepare"/>&lt;/div>&#xd;
-    #end&#xd;
-    &lt;dl>&#xd;
-      &lt;dt>&lt;label>Spaces (separated by comma) :&lt;/label>&lt;/dt>&#xd;
-      &lt;dd>&#xd;
-        &lt;input id="spacesList" type="text" name='spacesList' value='' />&#xd;
-      &lt;/dd>&#xd;
-      &lt;dt>&lt;label>Language to set (defaults to current default language) :&lt;/label>&lt;/dt>&#xd;
-      &lt;dd>&#xd;
-        &lt;input id="langToSet" type="text" name='langToSet' value='$!xwiki.getXWikiPreference("default_language")' />&#xd;
-      &lt;/dd>&#xd;
-      &lt;dt>&lt;label>Include hidden documents :&lt;/label>&lt;/dt>&#xd;
-      &lt;dd>&#xd;
-        &lt;input id="includeHidden" type="checkbox" name='includeHidden' value="true" />&#xd;
-      &lt;/dd>&#xd;
-      &lt;dt>&lt;label>Wikis:&lt;/label> &lt;/dt>&#xd;
-      &lt;dd>&#xd;
-        #set($wikis = $services.wiki.getAll())&#xd;
-        #set($aThirdOfWikis = $wikis.size() / 3)&#xd;
-        #set($twoThirdsOfWikis = $aThirdOfWikis * 2)&#xd;
-        &lt;div class="column third">&#xd;
-        &lt;ul>&#xd;
-        &lt;li>&lt;input id="selector" type="checkbox" value='' />&lt;strong>Select/Deselect all&lt;/strong>&lt;/li>&#xd;
-        #foreach($wiki in $sorttool.sort($wikis, ['id']))&#xd;
-          &lt;li>&lt;input name="wikis" type="checkbox" value="$wiki.id" class='toggleable'>$wiki.id&lt;/input>&lt;/li>&#xd;
-          #if ($velocityCount == $aThirdOfWikis || $velocityCount == $twoThirdsOfWikis)&#xd;
-            &lt;/ul>&lt;/div>&#xd;
-            &lt;div class="column third">&lt;ul>&#xd;
-          #end&#xd;
-        #end&#xd;
-        &lt;/ul>&#xd;
-      &lt;/dd>&#xd;
-    &lt;/dl>&#xd;
-    &lt;div class="buttonwrapper">&#xd;
-      &lt;input class="button" type="submit" value="Preview"/>&#xd;
-      #if ("$!request.secretagent" == '007')&#xd;
-        &lt;input type="hidden" name="xaction" value="perform"/>&#xd;
-        &lt;input class="button" type="submit" value="Do change default language"/>&#xd;
-      #end&#xd;
-    &lt;/div>&#xd;
-  &lt;/form>&#xd;
-  {{/html}}&#xd;
-&#xd;
-#elseif($xaction == 'perform' || $xaction == 'prepare')&#xd;
-  ## grab a logger to log the execution, to make sure that even if it timesout we still see stuff&#xd;
-  #set($logger = $services.logging.getLogger($doc.fullName))&#xd;
-&#xd;
-  Spaces: &#xd;
-  #set($querySpaces="(")&#xd;
-  #foreach($item in $stringtool.split($request.get('spacesList'),','))&#xd;
-    * $item&#xd;
-    #set($querySpaces="${querySpaces}'${item}'")&#xd;
-    #if($foreach.hasNext) &#xd;
-      #set($querySpaces="${querySpaces},")&#xd;
-    #end&#xd;
-  #end&#xd;
-  #set($querySpaces="${querySpaces})")&#xd;
-&#xd;
-  ## display the selected wikis&#xd;
-  Selected wikis :&#xd;
-  #foreach($wiki in $request.getParameterValues('wikis'))&#xd;
-    * $wiki&#xd;
-  #end&#xd;
-  ## get the language to set&#xd;
-  #set($langToSet = "$!request.langToSet")&#xd;
-&#xd;
-  Language to set: &#xd;
-  $langToSet&#xd;
-  ## find out whether we need to include hidden documents in the change or not&#xd;
-  #set($includeHidden = "$!request.includeHidden" == 'true')&#xd;
-&#xd;
-  Include hidden documents:&#xd;
-  $includeHidden&#xd;
-&#xd;
-  #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Starting setting default language to $langToSet for wikis #foreach($w in $request.getParameterValues('wikis'))$w, #end for spaces $querySpaces #if($includeHidden)including hidden documents#{else}excluding hidden documents#{end}"))&#xd;
-&#xd;
-  ## and perform the change&#xd;
-  #foreach($wiki in $request.getParameterValues('wikis'))&#xd;
-    #set($allEmptyDocsHQL = "where doc.defaultLanguage ='' and doc.language ='' and doc.translation='0' and doc.space in $querySpaces")&#xd;
-    ## if the hidden documents are not supposed to be included, add a filter to include only documents which don't have hidden flag set&#xd;
-    #if (!$includeHidden)&#xd;
-      #set($allEmptyDocsHQL = "$allEmptyDocsHQL and (doc.hidden &lt;&gt; true or doc.hidden is null)")&#xd;
-    #end&#xd;
-    #foreach($emptyDoc in $services.query.hql($allEmptyDocsHQL).setWiki("$wiki").execute())&#xd;
-      #set($langDocument = $xwiki.getDocument("$wiki:$emptyDoc").getDocument())&#xd;
-      ## check if the document has already translations in the specified language&#xd;
-      #if(!$langDocument.getTranslatedDocument($langToSet))&#xd;
-        $langDocument.setDefaultLanguage($langToSet)&#xd;
-        #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Changing document $langDocument.getPrefixedFullName()"))&#xd;
-        1. [[$langDocument.getPrefixedFullName()>>$langDocument.getPrefixedFullName()]] - #if($xaction == 'perform') Saved $xwiki.getXWiki().saveDocument($langDocument, $xcontext.context)#{else}Actual run would save document#{end}&#xd;
-      #end&#xd;
-    #end&#xd;
-  #end&#xd;
-  ##flush the cache so that the documents we set languages to don't stay like this&#xd;
-  $logger.warn("Flushing cache...");&#xd;
-  #set($discard = $xwiki.flushCache())&#xd;
-&#xd;
-&#xd;
-  #if ($xaction == 'prepare')&#xd;
-    {{html}}&#xd;
-    &lt;form id="performform" action="$doc.getURL('view')" method="post">&#xd;
-      &lt;div>&#xd;
-        &lt;input type="hidden" name="xaction" value="perform"/>&#xd;
-        #foreach($wiki in $request.getParameterValues('wikis'))&#xd;
-          &lt;input type="hidden" name="wikis" value="$wiki" />&#xd;
-        #end&#xd;
-      &lt;/div>&#xd;
-      &lt;div>&#xd;
-        &lt;input type="hidden" name="spacesList" value="$request.get('spacesList')" />&#xd;
-        &lt;input type="hidden" name="langToSet" value="$!request.langToSet" />&#xd;
-        #if ("$!request.includeHidden" == 'true')&#xd;
-          &lt;input type="hidden" name="includeHidden" value="true" />&#xd;
-        #end&#xd;
-      &lt;div class="buttonwrapper">&#xd;
-        &lt;input class="button" type="submit" value="Do change default language"/>&#xd;
-      &lt;/div>&#xd;
-    &lt;/form>&#xd;
-    {{/html}}&#xd;
-  #end&#xd;
-&#xd;
-  ## warn in the logs that everything is over&#xd;
-  #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Default language setting is finished."))&#xd;
-#end&#xd;
+  <content>{{velocity}}
+#set($xaction = "$!{request.getParameter('xaction')}")
+#if($xaction == '')
+  #set($discard = $xwiki.jsx.use("FarmTools.DefaultLanguageUpdater"))
+  {{html}}
+  &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform"&gt;
+    #if ("$!request.secretagent" != '007')
+      &lt;div&gt;&lt;input type="hidden" name="xaction" value="prepare"/&gt;&lt;/div&gt;
+    #end
+    &lt;dl&gt;
+      &lt;dt&gt;&lt;label&gt;Spaces (separated by comma) :&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;input id="spacesList" type="text" name='spacesList' value='' /&gt;
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label&gt;Language to set (defaults to current default language) :&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;input id="langToSet" type="text" name='langToSet' value='$!xwiki.getXWikiPreference("default_language")' /&gt;
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label&gt;Include hidden documents :&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;input id="includeHidden" type="checkbox" name='includeHidden' value="true" /&gt;
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt; &lt;/dt&gt;
+      &lt;dd&gt;
+        #set($wikis = $services.wiki.getAll())
+        #set($aThirdOfWikis = $wikis.size() / 3)
+        #set($twoThirdsOfWikis = $aThirdOfWikis * 2)
+        &lt;div class="column third"&gt;
+        &lt;ul&gt;
+        &lt;li&gt;&lt;input id="selector" type="checkbox" value='' /&gt;&lt;strong&gt;Select/Deselect all&lt;/strong&gt;&lt;/li&gt;
+        #foreach($wiki in $sorttool.sort($wikis, ['id']))
+          &lt;li&gt;&lt;input name="wikis" type="checkbox" value="$wiki.id" class='toggleable'&gt;$wiki.id&lt;/input&gt;&lt;/li&gt;
+          #if ($velocityCount == $aThirdOfWikis || $velocityCount == $twoThirdsOfWikis)
+            &lt;/ul&gt;&lt;/div&gt;
+            &lt;div class="column third"&gt;&lt;ul&gt;
+          #end
+        #end
+        &lt;/ul&gt;
+      &lt;/dd&gt;
+    &lt;/dl&gt;
+    &lt;div class="buttonwrapper"&gt;
+      &lt;input class="button" type="submit" value="Preview"/&gt;
+      #if ("$!request.secretagent" == '007')
+        &lt;input type="hidden" name="xaction" value="perform"/&gt;
+        &lt;input class="button" type="submit" value="Do change default language"/&gt;
+      #end
+    &lt;/div&gt;
+  &lt;/form&gt;
+  {{/html}}
+
+#elseif($xaction == 'perform' || $xaction == 'prepare')
+  ## grab a logger to log the execution, to make sure that even if it timesout we still see stuff
+  #set($logger = $services.logging.getLogger($doc.fullName))
+
+  Spaces:
+  #set($querySpaces="(")
+  #foreach($item in $stringtool.split($request.get('spacesList'),','))
+    * $item
+    #set($querySpaces="${querySpaces}'${item}'")
+    #if($foreach.hasNext)
+      #set($querySpaces="${querySpaces},")
+    #end
+  #end
+  #set($querySpaces="${querySpaces})")
+
+  ## display the selected wikis
+  Selected wikis :
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    * $wiki
+  #end
+  ## get the language to set
+  #set($langToSet = "$!request.langToSet")
+
+  Language to set:
+  $langToSet
+  ## find out whether we need to include hidden documents in the change or not
+  #set($includeHidden = "$!request.includeHidden" == 'true')
+
+  Include hidden documents:
+  $includeHidden
+
+  #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Starting setting default language to $langToSet for wikis #foreach($w in $request.getParameterValues('wikis'))$w, #end for spaces $querySpaces #if($includeHidden)including hidden documents#{else}excluding hidden documents#{end}"))
+
+  ## and perform the change
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    #set($allEmptyDocsHQL = "where doc.defaultLanguage ='' and doc.language ='' and doc.translation='0' and doc.space in $querySpaces")
+    ## if the hidden documents are not supposed to be included, add a filter to include only documents which don't have hidden flag set
+    #if (!$includeHidden)
+      #set($allEmptyDocsHQL = "$allEmptyDocsHQL and (doc.hidden &lt;&gt; true or doc.hidden is null)")
+    #end
+    #foreach($emptyDoc in $services.query.hql($allEmptyDocsHQL).setWiki("$wiki").execute())
+      #set($langDocument = $xwiki.getDocument("$wiki:$emptyDoc").getDocument())
+      ## check if the document has already translations in the specified language
+      #if(!$langDocument.getTranslatedDocument($langToSet))
+        $langDocument.setDefaultLanguage($langToSet)
+        #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Changing document $langDocument.getPrefixedFullName()"))
+        1. [[$langDocument.getPrefixedFullName()&gt;&gt;$langDocument.getPrefixedFullName()]] - #if($xaction == 'perform') Saved $xwiki.getXWiki().saveDocument($langDocument, $xcontext.context)#{else}Actual run would save document#{end}
+      #end
+    #end
+  #end
+  ##flush the cache so that the documents we set languages to don't stay like this
+  $logger.warn("Flushing cache...");
+  #set($discard = $xwiki.flushCache())
+
+
+  #if ($xaction == 'prepare')
+    {{html}}
+    &lt;form id="performform" action="$doc.getURL('view')" method="post"&gt;
+      &lt;div&gt;
+        &lt;input type="hidden" name="xaction" value="perform"/&gt;
+        #foreach($wiki in $request.getParameterValues('wikis'))
+          &lt;input type="hidden" name="wikis" value="$wiki" /&gt;
+        #end
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input type="hidden" name="spacesList" value="$request.get('spacesList')" /&gt;
+        &lt;input type="hidden" name="langToSet" value="$!request.langToSet" /&gt;
+        #if ("$!request.includeHidden" == 'true')
+          &lt;input type="hidden" name="includeHidden" value="true" /&gt;
+        #end
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="Do change default language"/&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+    {{/html}}
+  #end
+
+  ## warn in the logs that everything is over
+  #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Default language setting is finished."))
+#end
 {{/velocity}}</content>
   <object>
     <name>FarmTools.DefaultLanguageUpdater</name>
@@ -229,24 +230,24 @@
       <cache>short</cache>
     </property>
     <property>
-      <code>function registerCheckboxSelectionListener(){&#xd;
-  $('selector').observe('click', function(){&#xd;
-    $('prepareform').select('.toggleable').each(function(item) {&#xd;
-      if (item.checked){&#xd;
-        item.checked=false;&#xd;
-      } else {&#xd;
-        item.checked=true;&#xd;
-      }&#xd;
-    });&#xd;
-  });&#xd;
-}&#xd;
-&#xd;
-Event.observe(document, 'xwiki:dom:loaded', function() {&#xd;
-  registerCheckboxSelectionListener();&#xd;
+      <code>function registerCheckboxSelectionListener(){
+  $('selector').observe('click', function(){
+    $('prepareform').select('.toggleable').each(function(item) {
+      if (item.checked){
+        item.checked=false;
+      } else {
+        item.checked=true;
+      }
+    });
+  });
+}
+
+Event.observe(document, 'xwiki:dom:loaded', function() {
+  registerCheckboxSelectionListener();
 });</code>
     </property>
     <property>
-      <name></name>
+      <name/>
     </property>
     <property>
       <parse/>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc>
+  <web>FarmTools</web>
+  <name>FarmFieldValueCopier</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>FarmTools.WebHome</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1481193233000</creationDate>
+  <date>1481208328000</date>
+  <contentUpdateDate>1481208328000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Farm field value updater - Copy from another document</title>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+#set($xaction = "$!{request.getParameter('xaction')}")
+
+This application allows to replace a field value for an object of a document by a value copied from another document (from the subwiki or not), on a selection of the wikis from the farm.
+
+#if($xaction == '')
+  {{html}}
+    &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform"&gt;
+      &lt;div&gt;&lt;input type="hidden" name="xaction" value="prepare"/&gt;&lt;/div&gt;
+      &lt;dl class="column half"&gt;
+        &lt;h2&gt;Source&lt;/h2&gt;
+        &lt;dt&gt;&lt;label&gt;Document:&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Can be an absolute reference or a relative one depending on whether the value to set should always be read from a common document or read from each subwiki document for each updated subwiki.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="source_docfullname"/&gt;
+        &lt;/dd&gt;      
+        &lt;dt&gt;&lt;label&gt;Class :&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="source_class"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Property:&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Properties that designate metadata of the document can be used such as "doc.content". In this case, the class will not be used.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="source_property"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;dl class="column half"&gt;
+        &lt;h2&gt;Target&lt;/h2&gt;
+        &lt;dt&gt;&lt;label&gt;Document:&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Should always be a relative reference, of the document to be updated on each subwiki. If an absolute reference is passed here, most probably what will happen is that the last source value will win.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="target_docfullname"/&gt;
+        &lt;/dd&gt;      
+        &lt;dt&gt;&lt;label&gt;Class :&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="target_class"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Property:&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Properties that designate metadata of the document can be used such as "doc.content". In this case, the class will not be used.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="target_property"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;div class="clearfloats" /&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;&lt;label&gt;Skip empty source value&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Check this box if you want to prevent an empty source value to be set. The source value can be empty for multiple reasons: the value set is actually empty or the object whose property is to be copied doesn't exist. Checking this box will skip in both these cases.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="checkbox" name="skipemptysource" value="true" /&gt;&lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          #set($wikis = $services.wiki.getAll())
+          #set($aThirdOfWikis = $wikis.size() / 3)
+          #set($twoThirdsOfWikis = $aThirdOfWikis * 2)
+          &lt;div class="column third"&gt;
+          &lt;ul&gt;
+          #foreach($wiki in $sorttool.sort($wikis, ['id']))
+            &lt;li&gt;&lt;input name="wikis" type="checkbox" value="$wiki.id" &gt;$wiki.id&lt;/input&gt;&lt;/li&gt;
+            #if ($velocityCount == $aThirdOfWikis || $velocityCount == $twoThirdsOfWikis)
+              &lt;/ul&gt;&lt;/div&gt;
+              &lt;div class="column third"&gt;&lt;ul&gt;
+            #end
+          #end
+          &lt;/ul&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="Preview"/&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  {{/html}}
+
+#elseif($xaction == 'prepare')
+  #set($knownDocProps = ['doc.content'])
+  #set($sourceDocFullName = "$!{request.getParameter('source_docfullname')}")
+  #set($sourceProperty = "$!{request.getParameter('source_property')}")
+  #set($sourceClass = "$!{request.getParameter('source_class')}")
+  #set($targetDocFullName = "$!{request.getParameter('target_docfullname')}")
+  #set($targetProperty = "$!{request.getParameter('target_property')}")
+  #set($targetClass = "$!{request.getParameter('target_class')}")
+  #set($skipEmptySource = false)
+  #if ("$!{request.getParameter('skipemptysource')}" == 'true')
+    #set($skipEmptySource = true)
+  #end
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    ## Compute the replacement
+    #set($docToRead = $xwiki.getDocument($services.model.resolveDocument($sourceDocFullName, $services.model.createWikiReference($wiki))))
+    #set($replacement = '')
+    #if ($knownDocProps.contains($sourceProperty))
+      #if ($sourceProperty == 'doc.content')
+        #set($replacement = $docToRead.content)
+      #end
+    #else
+      #set($objToRead = $docToRead.getObject("$sourceClass"))
+      #set($replacement = "$!objToRead.getProperty($sourceProperty).value")
+    #end
+    ## Prepare the destination
+    #set($docToChange = $xwiki.getDocument($services.model.resolveDocument($targetDocFullName, $services.model.createWikiReference($wiki))))
+    #set($propValue = '')
+    #if ($knownDocProps.contains($targetProperty))
+      #if ($targetProperty == 'doc.content')
+        #set($propValue = $docToChange.content)
+      #end
+    #else
+      #set($objToChange = $docToChange.getObject("$targetClass"))
+      #set($propValue = $objToChange.getProperty($targetProperty).getValue())
+    #end
+    ## only handle if we're not on the main wiki, the source and target documents exist and we're not in the case when empty source should be skipped and the source is empty.
+    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
+      1. **$wiki**
+      1*. Document to change: [[$docToChange.prefixedFullName&gt;&gt;$docToChange.prefixedFullName]]
+      1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))
+      1*. New value: ((({{box}}{{{$replacement}}}{{/box}})))
+    #else
+      1. $wiki does not contain the targeted document ([[${docToChange.prefixedFullName}&gt;&gt;${docToChange.prefixedFullName}]]) or the source document ([[${docToRead.prefixedFullName}&gt;&gt;${docToRead.prefixedFullName}]]) #if($skipEmptySource) or empty sources are skipped and replacement is empty #{end}.
+    #end
+  #end
+
+{{html}}
+  &lt;form id="performform" action="$doc.getURL('view')" method="post"&gt;
+    &lt;div&gt;
+      &lt;input type="hidden" name="xaction" value="perform"/&gt;
+      &lt;input type="hidden" name="source_docfullname" value="$sourceDocFullName" /&gt;
+      &lt;input type="hidden" name="source_property" value="$sourceProperty"/&gt;
+      &lt;input type="hidden" name="source_class" value="$sourceClass"/&gt;
+      &lt;input type="hidden" name="target_docfullname" value="$targetDocFullName" /&gt;
+      &lt;input type="hidden" name="target_property" value="$targetProperty"/&gt;
+      &lt;input type="hidden" name="target_class" value="$targetClass"/&gt;
+      &lt;input type="hidden" name="skipemptysource" value="$skipEmptySource" /&gt;
+      #foreach($wiki in $request.getParameterValues('wikis'))
+        &lt;input type="hidden" name="wikis" value="$wiki" /&gt;
+      #end
+    &lt;/div&gt;
+    &lt;div class="buttonwrapper"&gt;
+      &lt;input class="button" type="submit" value="Apply the modifications"/&gt;
+    &lt;/div&gt;
+  &lt;/form&gt;
+{{/html}}
+
+#elseif($xaction == 'perform')
+  #set($knownDocProps = ['doc.content'])
+  #set($sourceDocFullName = "$!{request.getParameter('source_docfullname')}")
+  #set($sourceProperty = "$!{request.getParameter('source_property')}")
+  #set($sourceClass = "$!{request.getParameter('source_class')}")
+  #set($targetDocFullName = "$!{request.getParameter('target_docfullname')}")
+  #set($targetProperty = "$!{request.getParameter('target_property')}")
+  #set($targetClass = "$!{request.getParameter('target_class')}")
+  #set($skipEmptySource = false)
+  #if ("$!{request.getParameter('skipemptysource')}" == 'true')
+    #set($skipEmptySource = true)
+  #end
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    ## Compute the replacement
+    #set($docToRead = $xwiki.getDocument($services.model.resolveDocument($sourceDocFullName, $services.model.createWikiReference($wiki))))
+    #set($replacement = '')
+    #if ($knownDocProps.contains($sourceProperty))
+      #if ($sourceProperty == 'doc.content')
+        #set($replacement = $docToRead.content)
+      #end
+    #else
+      #set($objToRead = $docToRead.getObject("$sourceClass"))
+      #set($replacement = "$!objToRead.getProperty($sourceProperty).value")
+    #end
+    ## Prepare the destination
+    #set($docToChange = $xwiki.getDocument($services.model.resolveDocument($targetDocFullName, $services.model.createWikiReference($wiki))))
+    #set($propValue = '')
+    #if ($knownDocProps.contains($targetProperty))
+      #if ($targetProperty == 'doc.content')
+        #set($propValue = $docToChange.content)
+      #end
+    #else
+      #set($objToChange = $docToChange.getObject("$targetClass"))
+      #set($propValue = $objToChange.getProperty($targetProperty).getValue())
+    #end
+    ## only handle if we're not on the main wiki, the source and target documents exist and we're not in the case when empty source should be skipped and the source is empty.
+    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
+      1. **$wiki**
+      1*. Document to change: [[$docToChange.prefixedFullName&gt;&gt;$docToChange.prefixedFullName]]
+      1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))
+      1*. New value: ((({{box}}{{{$replacement}}}{{/box}})))
+      #set($needsSave = false)
+      #if ($knownDocProps.contains($targetProperty))
+        #if($targetProperty == 'doc.content')
+          #set($discard = $docToChange.setContent($replacement))
+          #set($needsSave = true)
+        #end
+      #elseif("$!objToChange" != '')
+        #set($discard = $objToChange.set($targetProperty, $replacement))
+        #set($needsSave = true)
+      #end
+      #if($needsSave)
+        #set($discard = $docToChange.save())
+      #end
+    #end
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>

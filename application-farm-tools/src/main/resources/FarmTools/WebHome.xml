@@ -23,8 +23,8 @@
 
 This is a bundle of tools for XWiki farm administrator.
 The bundle is actually composed of:
- * [[Farm importer&gt;&gt;FarmImporter]]
- * Farm property updater
+
+{{toc start="2"/}}
 
 == Farm Importer ==
 
@@ -39,16 +39,23 @@ Instructions:
 == Farm Property Updater ==
 
 Batch property updater for objects in multiple wikis.
-It is currently splitted in two separate tools:
- * [[Farm Field Value Updater&gt;&gt;FarmFieldValueUpdater]]
- * [[Farm Preferences Updater&gt;&gt;FarmPreferencesUpdater]]
+It is currently made of the following tools:
 
-Both tools allows to change the value of a given object property from one value to another. You select the name of the document containing the object to change (without wiki prefix), and the same document in all wikis will get its object property updated. The object selected is always the first object matching the object class to be updated.
+* [[Farm Field Value Updater&gt;&gt;FarmFieldValueUpdater]]
+* [[Farm Preferences Updater&gt;&gt;FarmPreferencesUpdater]]
+* [[Farm field value updater - Copy from another document&gt;&gt;FarmFieldValueCopier]]
+* [[Farm page objects deleter&gt;&gt;FarmPageObjectsDeleter]]
+
+The first 3 tools allow to change the value of a given object property from one value to another. You select the name of the document containing the object to change (without wiki prefix), and the same document in all wikis will get its object property updated. The object selected is always the first object matching the object class to be updated.
 
 In the Farm Field Value Updater, you can freely choose the object class you want to update, and you can set a constant value to one of its properties.
 
+In "copy from another document" flavour of this tool, the value to set can it be fetched from a source document instead of being a constant value. The source document can be variable (resolved on each subwiki on which the action is executed) or it can be a fixed document, the same one for all subwikis. This allows to easier deploy a value that is already set on one wiki on the whole farm.
+
 In the Farm Preferences Updater, the object is always of class 'XWiki.XWikiPreferences', so only properties of this class could be updated. The update is done using a regex and a replacement value, so you have the ability to manipulate the existing value to produce the new one.
 Additionnaly, in this second tool, there is a special property named "doc.parent", which allows you to update the parent of any choosen document using the same regex mechanism.
+
+The last tool, the page objects deleter, allows to delete objects from the same page on all subwikis, which can either be filtered by the value of a field (and delete only those that match) or not (in which case all objects of that class will be set).
 
 == Farm Class Manager ==
 

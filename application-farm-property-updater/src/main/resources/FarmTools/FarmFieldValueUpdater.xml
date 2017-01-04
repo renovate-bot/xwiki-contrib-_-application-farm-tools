@@ -47,6 +47,12 @@ This application allows to replace a field value for an object of a document by 
         &lt;/dd&gt;
         &lt;dt&gt;&lt;label&gt;Replacement value:&lt;/label&gt;&lt;/dt&gt;
         &lt;dd&gt;&lt;textarea name="replacement" rows="5" columns="20"&gt;&lt;/textarea&gt;&lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Create object if not present?&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Checking this box will create the target object (of the target class), if not already present in the target document.&lt;br /&gt;Does not apply for the document metadata properties, such as doc.content.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="checkbox" name="createobject" value="true" /&gt;&lt;/dd&gt;
       &lt;/dl&gt;
       &lt;dl&gt;
         &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
@@ -78,6 +84,10 @@ This application allows to replace a field value for an object of a document by 
   #set($property = "$!{request.getParameter('property')}")
   #set($class = "$!{request.getParameter('class')}")
   #set($replacement = "$!{request.getParameter('replacement')}")
+  #set($createobject = false)
+  #if ("$!request.createobject" == 'true')
+    #set($createobject = true)
+  #end
   #foreach($wiki in $request.getParameterValues('wikis'))
     #set($docToChange = $xwiki.getDocument("${wiki}:${docFullName}"))
     #if ($knownDocProps.contains($property))
@@ -85,16 +95,16 @@ This application allows to replace a field value for an object of a document by 
         #set($propValue = $docToChange.content)
       #end
     #else
-      #set($objToChange = $docToChange.getObject("$class"))
+      #set($objToChange = $docToChange.getObject("$class", $createobject))
       #set($propValue = $objToChange.getProperty("$property").getValue())
     #end
-    #if($wiki != 'xwiki' &amp;&amp; !$docToChange.isNew())
+    #if($wiki != 'xwiki' &amp;&amp; !$docToChange.isNew() &amp;&amp; ($knownDocProps.contains($property) || "$!objToChange" != ''))
       1. $wiki
       1*. Document to change: [[$docToChange.prefixedFullName]]
       1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))
       1*. New value: ((({{box}}{{{$replacement}}}{{/box}})))
     #else
-      1. $wiki does not contain the targeted document
+      1. $wiki does not contain the targeted document or the targeted object (if any).
     #end
   #end
 
@@ -105,6 +115,7 @@ This application allows to replace a field value for an object of a document by 
       &lt;input type="hidden" name="docfullname" value="$docFullName" /&gt;
       &lt;input type="hidden" name="property" value="$property"/&gt;
       &lt;input type="hidden" name="class" value="$class"/&gt;
+      &lt;input type="hidden" name="createobject" value="$createobject" /&gt;
       &lt;div class="hidden"&gt;
         &lt;textarea name="replacement"&gt;$escapetool.xml($replacement)&lt;/textarea&gt;
       &lt;/div&gt;
@@ -124,6 +135,10 @@ This application allows to replace a field value for an object of a document by 
   #set($property = "$!{request.getParameter('property')}")
   #set($class = "$!{request.getParameter('class')}")
   #set($replacement = "$!{request.getParameter('replacement')}")
+  #set($createobject = false)
+  #if ("$!request.createobject" == 'true')
+    #set($createobject = true)
+  #end
   #foreach($wiki in $request.getParameterValues('wikis'))
     #set($docToChange = $xwiki.getDocument("${wiki}:${docFullName}"))
     #if ($knownDocProps.contains($property))
@@ -131,10 +146,10 @@ This application allows to replace a field value for an object of a document by 
         #set($propValue = $docToChange.content)
       #end
     #else
-      #set($objToChange = $docToChange.getObject("$class"))
+      #set($objToChange = $docToChange.getObject("$class", $createobject))
       #set($propValue = $objToChange.getProperty("$property").getValue())
     #end
-    #if($wiki != 'xwiki' &amp;&amp; !$docToChange.isNew())
+    #if($wiki != 'xwiki' &amp;&amp; !$docToChange.isNew() &amp;&amp; ($knownDocProps.contains($property) || "$!objToChange" != ''))
       1. $wiki
       1*. Document to change: [[$docToChange.prefixedFullName]]
       1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))

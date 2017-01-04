@@ -53,6 +53,12 @@ This application allows to replace a field value for an object of a document by 
         &lt;dd&gt;
           &lt;input type="text" name="source_property"/&gt;
         &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Skip empty source value&lt;/label&gt;
+        &lt;div class="xHint"&gt;
+          Check this box if you want to prevent an empty source value to be set. The source value can be empty for multiple reasons: the value set is actually empty or the object whose property is to be copied doesn't exist. Checking this box will skip in both these cases.
+        &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="checkbox" name="skipemptysource" value="true" /&gt;&lt;/dd&gt;
       &lt;/dl&gt;
       &lt;dl class="column half"&gt;
         &lt;h2&gt;Target&lt;/h2&gt;
@@ -76,16 +82,14 @@ This application allows to replace a field value for an object of a document by 
         &lt;dd&gt;
           &lt;input type="text" name="target_property"/&gt;
         &lt;/dd&gt;
-      &lt;/dl&gt;
-      &lt;div class="clearfloats" /&gt;
-      &lt;dl&gt;
-        &lt;dt&gt;&lt;label&gt;Skip empty source value&lt;/label&gt;
+        &lt;dt&gt;&lt;label&gt;Create object if not present?&lt;/label&gt;
         &lt;div class="xHint"&gt;
-          Check this box if you want to prevent an empty source value to be set. The source value can be empty for multiple reasons: the value set is actually empty or the object whose property is to be copied doesn't exist. Checking this box will skip in both these cases.
+          Checking this box will create the target object (of the target class), if not already present in the target document. &lt;br /&gt;Does not apply for the document metadata properties, such as doc.content.
         &lt;/div&gt;
         &lt;/dt&gt;
-        &lt;dd&gt;&lt;input type="checkbox" name="skipemptysource" value="true" /&gt;&lt;/dd&gt;
+        &lt;dd&gt;&lt;input type="checkbox" name="createobject" value="true" /&gt;&lt;/dd&gt;
       &lt;/dl&gt;
+      &lt;div class="clearfloats" /&gt;
       &lt;dl&gt;
         &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
         &lt;dd&gt;
@@ -122,6 +126,10 @@ This application allows to replace a field value for an object of a document by 
   #if ("$!{request.getParameter('skipemptysource')}" == 'true')
     #set($skipEmptySource = true)
   #end
+  #set($createObject = false)
+  #if ("$!{request.getParameter('createobject')}" == 'true')
+    #set($createObject = true)
+  #end
   #foreach($wiki in $request.getParameterValues('wikis'))
     ## Compute the replacement
     #set($docToRead = $xwiki.getDocument($services.model.resolveDocument($sourceDocFullName, $services.model.createWikiReference($wiki))))
@@ -142,17 +150,17 @@ This application allows to replace a field value for an object of a document by 
         #set($propValue = $docToChange.content)
       #end
     #else
-      #set($objToChange = $docToChange.getObject("$targetClass"))
+      #set($objToChange = $docToChange.getObject("$targetClass", $createObject))
       #set($propValue = $objToChange.getProperty($targetProperty).getValue())
     #end
     ## only handle if we're not on the main wiki, the source and target documents exist and we're not in the case when empty source should be skipped and the source is empty.
-    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
+    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; ($knownDocProps.contains($targetProperty) || "$!objToChange" != '') &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
       1. **$wiki**
       1*. Document to change: [[$docToChange.prefixedFullName&gt;&gt;$docToChange.prefixedFullName]]
       1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))
       1*. New value: ((({{box}}{{{$replacement}}}{{/box}})))
     #else
-      1. $wiki does not contain the targeted document ([[${docToChange.prefixedFullName}&gt;&gt;${docToChange.prefixedFullName}]]) or the source document ([[${docToRead.prefixedFullName}&gt;&gt;${docToRead.prefixedFullName}]]) #if($skipEmptySource) or empty sources are skipped and replacement is empty #{end}.
+      1. $wiki does not contain the targeted document or object ([[${docToChange.prefixedFullName}&gt;&gt;${docToChange.prefixedFullName}]]) or the source document ([[${docToRead.prefixedFullName}&gt;&gt;${docToRead.prefixedFullName}]]) #if($skipEmptySource) or empty sources are skipped and replacement is empty #{end}.
     #end
   #end
 
@@ -167,6 +175,7 @@ This application allows to replace a field value for an object of a document by 
       &lt;input type="hidden" name="target_property" value="$targetProperty"/&gt;
       &lt;input type="hidden" name="target_class" value="$targetClass"/&gt;
       &lt;input type="hidden" name="skipemptysource" value="$skipEmptySource" /&gt;
+      &lt;input type="hidden" name="createobject" value="$createObject" /&gt;
       #foreach($wiki in $request.getParameterValues('wikis'))
         &lt;input type="hidden" name="wikis" value="$wiki" /&gt;
       #end
@@ -189,6 +198,10 @@ This application allows to replace a field value for an object of a document by 
   #if ("$!{request.getParameter('skipemptysource')}" == 'true')
     #set($skipEmptySource = true)
   #end
+  #set($createObject = false)
+  #if ("$!{request.getParameter('createobject')}" == 'true')
+    #set($createObject = true)
+  #end
   #foreach($wiki in $request.getParameterValues('wikis'))
     ## Compute the replacement
     #set($docToRead = $xwiki.getDocument($services.model.resolveDocument($sourceDocFullName, $services.model.createWikiReference($wiki))))
@@ -209,11 +222,11 @@ This application allows to replace a field value for an object of a document by 
         #set($propValue = $docToChange.content)
       #end
     #else
-      #set($objToChange = $docToChange.getObject("$targetClass"))
+      #set($objToChange = $docToChange.getObject("$targetClass", $createObject))
       #set($propValue = $objToChange.getProperty($targetProperty).getValue())
     #end
     ## only handle if we're not on the main wiki, the source and target documents exist and we're not in the case when empty source should be skipped and the source is empty.
-    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
+    #if($wiki != 'xwiki' &amp;&amp; !$docToRead.isNew() &amp;&amp; !$docToChange.isNew() &amp;&amp; ($knownDocProps.contains($targetProperty) || "$!objToChange" != '') &amp;&amp; !($skipEmptySource &amp;&amp; $replacement == ''))
       1. **$wiki**
       1*. Document to change: [[$docToChange.prefixedFullName&gt;&gt;$docToChange.prefixedFullName]]
       1*. Old value: ((({{box}}{{{$propValue}}}{{/box}})))

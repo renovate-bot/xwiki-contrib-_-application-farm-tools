@@ -57,6 +57,10 @@ Additionnaly, in this second tool, there is a special property named "doc.parent
 
 The last tool, the page objects deleter, allows to delete objects from the same page on all subwikis, which can either be filtered by the value of a field (and delete only those that match) or not (in which case all objects of that class will be set).
 
+* [[Farm Objects Checker&gt;&gt;FarmObjectsChecker]]
+
+This tools allows to fetch a status of objects of a given type on a given document on all the wikis of the farm. It does not make any modification, is only to consult the state of the objects on wikis. Can be used to check rights objects on all wikis of the farm or to check presence of tags or comments on a given document of the wiki, to validate that a document can be overwritten before using the importer, for example.
+
 == Farm Class Manager ==
 
 Mass update a class on multiple wikis.

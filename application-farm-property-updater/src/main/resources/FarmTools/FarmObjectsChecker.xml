@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc version="1.1">
+  <web>FarmTools</web>
+  <name>FarmObjectsChecker</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1500384171000</creationDate>
+  <parent>FarmTools.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1500387618000</date>
+  <contentUpdateDate>1500387618000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Farm Objects Checker</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+#set($xaction = "$!{request.getParameter('xaction')}")
+
+This application allows to check the presence and values of an object in a document on all the wikis of a farm. It makes no modification, only lists the status.
+
+#if($xaction == '')
+  {{html}}
+    &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform"&gt;
+      &lt;div&gt;&lt;input type="hidden" name="xaction" value="prepare"/&gt;&lt;/div&gt;
+      &lt;dl class="half"&gt;
+        &lt;dt&gt;&lt;label&gt;Document:&lt;/label&gt;
+          &lt;div class="xHint"&gt;
+            Document in which to search for objects.
+          &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="docfullname"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Class :&lt;/label&gt;
+          &lt;div class="xHint"&gt;
+            The type of objects to look for.
+          &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="class"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Display mode :&lt;/label&gt;
+          &lt;div class="xHint"&gt;
+            The type of display for the properties: table to read visually or copy paste in excel, or text to store and diff.
+          &lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;select name="displaytype"&gt;
+            &lt;option value="tablewithheaders" selected='selected'&gt;Table with individual headers&lt;/option&gt;
+            &lt;option value="table" selected='selected'&gt;Table without individual headers&lt;/option&gt;
+            &lt;option value='text'&gt;Text&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="View"/&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  {{/html}}
+
+#elseif($xaction == 'prepare')
+  #set($docFullName = "$!{request.getParameter('docfullname')}")
+  #set($class = "$!{request.getParameter('class')}")
+  #set($displayType = "$!{request.getParameter('displaytype')}")
+  #set($wikis = $services.wiki.getAll())
+  #if ($displayType == 'text')
+    {{{
+  #end
+  #if ($displayType == 'table' || $displayType == 'text')
+    ## generate only one header, from the class as it is on the main wiki and all tables under
+    #set($classToCheck = $xwiki.getClass($class))
+    |=Wiki|=Obj number#foreach($propName in $classToCheck.propertyNames)|=${propName}#end
+
+  #end
+  #foreach($wiki in $sorttool.sort($wikis, ['id']))
+    #set($docToCheck = $xwiki.getDocument("${wiki.id}:${docFullName}"))
+    ## get the class pointed to on this wiki:
+    #set($classToCheck = $xwiki.getClass($class))
+    ## if the document exists, perform the check, otherwise display a message
+    #if (!$docToCheck.isNew())
+      #if ($displayType == 'tablewithheaders')
+        |=Wiki|=Obj number#foreach($propName in $classToCheck.propertyNames)|=${propName}#end
+
+      #end
+      #set($foundObj = false)
+      #foreach($o in $docToCheck.getObjects($class))
+        #if ($o != $NULL)
+          #set($foundObj = true)
+          |$wiki.id|${o.number}#foreach($propName in $classToCheck.propertyNames)|$!{o.getProperty($propName).value}#end
+
+        #end
+      #end
+      #if (!$foundObj)
+        |#if($displayType != 'text')(% colspan="${mathtool.add($classToCheck.propertyNames.size(), 2)}" %)#{end}$wiki.id does not contain any object of specified type
+      #end
+    #else
+      |#if($displayType != 'text')(% colspan="${mathtool.add($classToCheck.propertyNames.size(), 2)}" %)#{end}$wiki.id does not contain the document
+    #end
+    #if ($displayType == 'tablewithheaders')
+
+    #end
+  #end
+  #if ($displayType == 'text')
+    }}}
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc version="1.1">
+  <web>FarmTools</web>
+  <name>FarmImporterDisplayMacros</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>FarmTools.WebHome</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1500455979000</creationDate>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1500457005000</date>
+  <contentUpdateDate>1500456765000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity output='false'}}
+#macro(displayWikisListSelector)
+  #set($wikis = $services.wiki.getAll())        
+  #foreach($wiki in $wikis)
+    #if("$!{wiki.id}" != "$!{xwiki}")
+      &lt;span class="xwiki-form-listclass"&gt;
+        &lt;input name="wikis" type="checkbox" value="$!escapetool.xml($wiki.id)" checked="checked" class='toggleable'/&gt;
+        $wiki.id - &lt;a href="$xwiki.getURL("${wiki.id}:Main.WebHome")"&gt;$wiki.defaultAlias&lt;/a&gt;
+      &lt;/span&gt;              
+    #end
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>

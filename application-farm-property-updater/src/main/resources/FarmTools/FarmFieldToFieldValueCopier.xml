@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc version="1.3" reference="FarmTools.FarmFieldToFieldValueCopier" locale="">
+  <web>FarmTools</web>
+  <name>FarmFieldToFieldValueCopier</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Main.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Farm Field To Field Value Copier</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+#set ($xaction = "$!request.xaction")
+
+{{info}}
+This page allows to copy a field value of all instances of given class to another field from the same class in a set of wikis of the farm.
+{{/info}}
+
+#if ($xaction == '')
+  {{html}}
+    &lt;form action="" method="post" class="xform"&gt;
+      &lt;dl class="half"&gt;
+        &lt;dt&gt;
+          &lt;label&gt;XWiki class name:&lt;/label&gt;
+          &lt;div class="xHint"&gt;Example: Blog.BlogPostClass&lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="clazz"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;
+          &lt;label&gt;Source property name:&lt;/label&gt;
+          &lt;div class="xHint"&gt;Source property of the above class to be copied from. Example: attachedImage&lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="sourceProperty"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;
+          &lt;label&gt;Target property:&lt;/label&gt;
+          &lt;div class="xHint"&gt;Target property of the above class to be copied to. Example: image&lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="targetProperty"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;
+          &lt;label&gt;Wikis:&lt;/label&gt;
+          &lt;div class="xHint"&gt;List of wikis where this update should occur, separated by a comma. Example: xwiki,subwiki1,subwiki2&lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          #set($wikis = $services.wiki.getAll())
+          #set ($wikis = $sorttool.sort($wikis, ['id']))
+          #set ($str = '')
+          #foreach ($wiki in $wikis)
+            #set ($str = "$str${wiki.id},")
+          #end
+          &lt;input name="wikis" type="text" value="$str"/&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;
+          &lt;label&gt;Comment:&lt;/label&gt;
+          &lt;div class="xHint"&gt;Comment to be added to the updated pages history. Example: Upgrade to application version 2&lt;/div&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="comment"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;input type="hidden" name="xaction" value="preview"/&gt;
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="Preview"/&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  {{/html}}
+
+#elseif ($xaction == 'preview' || $xaction == 'execute')
+  #set ($sourceProperty = "$!request.sourceProperty")
+  #set ($targetProperty = "$!request.targetProperty")
+  #set ($class = "$!request.clazz")
+  #set ($wikis = "$!request.wikis")
+  #set ($comment = "$!request.comment")
+
+  == List of documents #if ($xaction == 'preview')to be updated#else that were processed#end ==
+
+  #foreach ($wiki in $wikis.split(','))
+    === Wiki $wiki ===
+
+    #set ($hql = "select obj.name from BaseObject as obj where obj.className = :className order by obj.name")
+    #set ($entries = $services.query.hql($hql).setWiki($wiki).bindValue('className', $class).execute())
+    |=Page|=Source property value|=Target property value
+    #foreach ($entry in $entries)
+      #set ($sourcePage = $xwiki.getDocument($services.model.resolveDocument($entry, $services.model.createWikiReference($wiki))))
+      #set ($sourceObject = $sourcePage.getObject($class))
+      #set ($sourcePropertyValue = "$!sourceObject.getValue($sourceProperty)")
+      #set ($originalTargetPropertyValue = "$!sourceObject.getValue($targetProperty)")
+      #if ($originalTargetPropertyValue != $sourcePropertyValue)
+        #if ($xaction == 'execute')
+          #set ($discard = $sourceObject.set($targetProperty, $sourcePropertyValue))
+          #set ($discard = $sourcePage.save($comment, false))
+        #end
+        #if ($xaction == 'execute')
+          #set ($targetPropertyValue = $sourcePropertyValue)
+        #else
+          #set ($targetPropertyValue = $originalTargetPropertyValue)
+        #end
+        |[[$wiki:$entry]]|$sourcePropertyValue|$targetPropertyValue
+      #else
+        |[[$wiki:$entry]]|$sourcePropertyValue|Identical to source property value
+      #end
+    #end
+  #end
+  #if ($xaction == 'preview')
+
+  {{html}}
+    &lt;form action="" method="post" class="xform"&gt;
+      &lt;input type="hidden" name="xaction" value="execute" /&gt;
+      &lt;input type="hidden" name="clazz" value="$class" /&gt;
+      &lt;input type="hidden" name="sourceProperty" value="$sourceProperty" /&gt;
+      &lt;input type="hidden" name="targetProperty" value="$targetProperty" /&gt;
+      &lt;input type="hidden" name="wikis" value="$wikis" /&gt;
+      &lt;input type="hidden" name="comment" value="$comment" /&gt;
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="Confirm"/&gt;
+      &lt;/div&gt;
+   &lt;/form&gt;
+  {{/html}}
+
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>

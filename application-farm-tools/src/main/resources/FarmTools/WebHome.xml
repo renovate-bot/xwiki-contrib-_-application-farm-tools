@@ -32,9 +32,8 @@ Ease importing a XAR package on multiple wikis.
 
 Instructions:
 
-* Attach the desired .xar to the [[FarmImporter]] page
-* Autocomplete will help you while you type in the xar input of the form
-* You can start the xar import on the selected batch of wikis by pressing the 'Start' button. You can also cancel the operation on the upcoming wikis by pressing the 'Cancel' button
+* Upload the XAR file to be imported to the server (e.g. over SSH).
+* Enter the full path to that file on the server in the [[XarImporter]] page, and proceed with the import.
 
 == Farm Property Updater ==
 

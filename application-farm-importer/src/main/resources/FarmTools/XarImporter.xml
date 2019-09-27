@@ -46,8 +46,9 @@ This page allows to import a XAR into multiple subwikis at once. Launched jobs c
   #foreach ($wikiId in $!request.getParameterValues('wikis'))
     #set ($inputType = 'xwiki+xar/1.1')
     #set ($outputType = 'xwiki+instance+document')
-    #set ($inputProperties = {'withExtension':true, 'forceDocument':false, 'withHistory':true, 'verbose': true, 'source': 'file:/tmp/xwiki-afcen-pdfviewer-4.0-SNAPSHOT.xar'})
-    #set ($outputProperties = {'defaultReference':"wiki:$wikiId", 'previousDeleted':false, 'verbose':true, 'saveComment':'Import', 'versionPreserved':true, 'authorPreserved':true, 'stoppedWhenSaveFail':true})
+    #set ($input = "$!request.xar")
+    #set ($inputProperties = {'withExtension':false, 'forceDocument':false, 'withHistory':false, 'verbose': true, 'source': $input})
+    #set ($outputProperties = {'defaultReference': "wiki:$wikiId", 'previousDeleted':false, 'verbose':true, 'saveComment':'Import', 'versionPreserved':false, 'authorPreserved':false, 'stoppedWhenSaveFail':true})
     #set($job = $services.filter.startConvert($inputType, $inputProperties, $outputType, $outputProperties))
     |$wikiId|$job
     #set ($flag = true)

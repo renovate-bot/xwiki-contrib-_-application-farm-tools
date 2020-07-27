@@ -43,6 +43,10 @@
       <name>Denis Gervalle</name>
       <organization>SOFTEC sa</organization>
     </developer>
+    <developer>
+      <id>acotiuga</id>
+      <name>Alex Cotiugă</name>
+    </developer>
   </developers>
   <scm>
     <connection>scm:git:git://github.com/xwiki-contrib/application-farm-tools.git</connection>

@@ -1,10 +1,20 @@
-Farm Tools
-==========
+# Farm Tools
 
 This is a bundle of tools for XWiki farm administrator.
 The bundle is actually composed of:
  * Farm importer
  * Farm property updater
+
+* Project Lead: [Denis Gervalle](https://www.xwiki.org/xwiki/bin/view/XWiki/dgervalle)
+* [Documentation & Downloads](https://extensions.xwiki.org/xwiki/bin/view/Extension/Farm%20Tools)
+* [Issue Tracker](https://jira.xwiki.org/browse/FARMTOOLS)
+* Communication: [Mailing List](http://dev.xwiki.org/xwiki/bin/view/Community/MailingLists), [IRC](http://dev.xwiki.org/xwiki/bin/view/Community/IRC)
+* [Development Practices](http://dev.xwiki.org)
+* Minimal XWiki version supported: XWiki 7.4
+* License: LGPL 2.1
+* Translations: N/A
+* Sonar Dashboard: N/A
+* Continuous Integration Status: N/A
 
 Farm Importer
 -------------

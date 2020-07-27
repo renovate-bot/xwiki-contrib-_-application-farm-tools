@@ -1,10 +1,5 @@
 # Farm Tools
 
-This is a bundle of tools for XWiki farm administrator.
-The bundle is actually composed of:
- * Farm importer
- * Farm property updater
-
 * Project Lead: [Denis Gervalle](https://www.xwiki.org/xwiki/bin/view/XWiki/dgervalle)
 * [Documentation & Downloads](https://extensions.xwiki.org/xwiki/bin/view/Extension/Farm%20Tools)
 * [Issue Tracker](https://jira.xwiki.org/browse/FARMTOOLS)
@@ -15,6 +10,11 @@ The bundle is actually composed of:
 * Translations: N/A
 * Sonar Dashboard: N/A
 * Continuous Integration Status: N/A
+
+This is a bundle of tools for XWiki farm administrator.
+The bundle is actually composed of:
+ * Farm importer
+ * Farm property updater
 
 Farm Importer
 -------------

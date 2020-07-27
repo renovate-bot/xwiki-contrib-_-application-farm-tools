@@ -36,6 +36,8 @@
   <version>2.5-SNAPSHOT</version>
   <description>Bundle of tools useful to manage an XWiki Farm</description>
   <properties>
+    <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
+    <xwiki.issueManagement.jira.id>LDAP</xwiki.issueManagement.jira.id>
   </properties>
   <developers>
     <developer>

@@ -16,6 +16,10 @@
       <name>Denis Gervalle</name>
       <organization>SOFTEC sa</organization>
     </developer>
+    <developer>
+      <id>acotiuga</id>
+      <name>Alex Cotiugă</name>
+    </developer>
   </developers>
   <dependencies>
     <dependency>

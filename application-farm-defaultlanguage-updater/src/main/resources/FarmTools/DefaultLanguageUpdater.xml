@@ -31,8 +31,8 @@
   <parent>FarmTools.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1595846056000</date>
-  <contentUpdateDate>1595846056000</contentUpdateDate>
+  <date>1596195746000</date>
+  <contentUpdateDate>1596195737000</contentUpdateDate>
   <version>1.1</version>
   <title>Default Language Updater</title>
   <comment/>
@@ -95,14 +95,9 @@
 
   Spaces:
   #set($querySpaces="(")
-  #foreach($item in $stringtool.split($request.get('spacesList'),','))
+  #foreach($item in $request.get('spacesList').split(','))
     * $item
-    #set($querySpaces="${querySpaces}'${item}'")
-    #if($foreach.hasNext)
-      #set($querySpaces="${querySpaces},")
-    #end
   #end
-  #set($querySpaces="${querySpaces})")
 
   ## display the selected wikis
   Selected wikis :
@@ -113,34 +108,45 @@
   #set($langToSet = "$!request.langToSet")
 
   Language to set:
-  $langToSet
+  * $langToSet
   ## find out whether we need to include hidden documents in the change or not
   #set($includeHidden = "$!request.includeHidden" == 'true')
 
   Include hidden documents:
-  $includeHidden
+  * $includeHidden
 
   #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Starting setting default language to $langToSet for wikis #foreach($w in $request.getParameterValues('wikis'))$w, #end for spaces $querySpaces #if($includeHidden)including hidden documents#{else}excluding hidden documents#{end}"))
 
-  ## and perform the change
-  #foreach($wiki in $request.getParameterValues('wikis'))
-    #set($allEmptyDocsHQL = "where doc.defaultLanguage ='' and doc.language ='' and doc.translation='0' and doc.space in $querySpaces")
-    ## if the hidden documents are not supposed to be included, add a filter to include only documents which don't have hidden flag set
-    #if (!$includeHidden)
-      #set($allEmptyDocsHQL = "$allEmptyDocsHQL and (doc.hidden &lt;&gt; true or doc.hidden is null)")
-    #end
-    #foreach($emptyDoc in $services.query.hql($allEmptyDocsHQL).setWiki("$wiki").execute())
-      #set($langDocument = $xwiki.getDocument("$wiki:$emptyDoc").getDocument())
-      ## check if the document has already translations in the specified language
-      #if(!$langDocument.getTranslatedDocument($langToSet))
-        $langDocument.setDefaultLanguage($langToSet)
-        #set($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Changing document $langDocument.getPrefixedFullName()"))
-        1. [[$langDocument.getPrefixedFullName()&gt;&gt;$langDocument.getPrefixedFullName()]] - #if($xaction == 'perform') Saved $xwiki.getXWiki().saveDocument($langDocument, $xcontext.context)#{else}Actual run would save document#{end}
+  ## Perform the default language update.
+  #foreach ($wiki in $request.getParameterValues('wikis'))
+    #foreach ($space in $request.get('spacesList').split(','))
+      #set ($statement = "where doc.defaultLanguage ='' and doc.language ='' and doc.translation='0' and doc.space like :space escape '!'")
+       ## If the hidden documents are not supposed to be included, add a filter to include only documents which don't have hidden flag set.
+      #if (!$includeHidden)
+        #set ($statement = "$statement and (doc.hidden &lt;&gt; true or doc.hidden is null)")
+      #end
+      #set ($spaceLike = $space.replaceAll('([%_!])', '!$1').concat('%'))
+      #set ($query = $services.query.xwql($statement).bindValue('space', $spaceLike).setWiki($wiki))
+      #set ($results = $query.execute())
+      #foreach ($result in $results)
+        #set ($langDocument = $xwiki.getDocument("$wiki:$result").getDocument())
+        ## Check if the document has already translations in the specified language.
+        #if(!$langDocument.getTranslatedDocument($langToSet))
+          #set ($discard = $langDocument.setDefaultLanguage($langToSet))
+          #set ($discard = $logger.warn("#if($xaction == 'prepare')[Dry run]#{end} Changing document $langDocument.getPrefixedFullName()"))
+          #set ($status = 'Actual run would save document')
+          #if ($xaction == 'perform')
+            #set ($discard = $xwiki.getXWiki().saveDocument($langDocument, $xcontext.context))
+            #set ($status = 'Saved')
+          #end
+          1. [[$langDocument.getPrefixedFullName()&gt;&gt;$langDocument.getPrefixedFullName()]] - $status A $langDocument.defaultLanguage B
+        #end
       #end
     #end
   #end
+
   ##flush the cache so that the documents we set languages to don't stay like this
-  $logger.warn("Flushing cache...");
+  $logger.warn("Flushing cache...")
   #set($discard = $xwiki.flushCache())
 
 

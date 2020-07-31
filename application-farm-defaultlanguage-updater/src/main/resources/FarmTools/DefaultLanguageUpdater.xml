@@ -139,7 +139,7 @@
             #set ($discard = $xwiki.getXWiki().saveDocument($langDocument, $xcontext.context))
             #set ($status = 'Saved')
           #end
-          1. [[$langDocument.getPrefixedFullName()&gt;&gt;$langDocument.getPrefixedFullName()]] - $status A $langDocument.defaultLanguage B
+          1. [[$langDocument.getPrefixedFullName()&gt;&gt;$langDocument.getPrefixedFullName()]] - $status
         #end
       #end
     #end

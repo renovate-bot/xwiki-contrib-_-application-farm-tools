@@ -53,7 +53,15 @@
       &lt;dd&gt;
         &lt;input id="spacesList" type="text" name='spacesList' value='' /&gt;
       &lt;/dd&gt;
-      &lt;dt&gt;&lt;label&gt;Language to set (defaults to current default language) :&lt;/label&gt;&lt;/dt&gt;
+      &lt;dt&gt;&lt;label&gt;Current default language:&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;input id="defLang" type="text" name='defLang' value='' /&gt;
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label&gt;Current language:&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;input id="lang" type="text" name='lang' value='' /&gt;
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label&gt;Default language to set (defaults to current default language) :&lt;/label&gt;&lt;/dt&gt;
       &lt;dd&gt;
         &lt;input id="langToSet" type="text" name='langToSet' value='$!xwiki.getXWikiPreference("default_language")' /&gt;
       &lt;/dd&gt;
@@ -104,6 +112,17 @@
   #foreach($wiki in $request.getParameterValues('wikis'))
     * $wiki
   #end
+
+  ## get current default language
+  Current default language:
+  #set($defLang = "$!request.defLang")
+    * $defLang
+
+  ##get current language
+  Current language:
+  #set($lang = "$!request.lang")
+    * $lang
+
   ## get the language to set
   #set($langToSet = "$!request.langToSet")
 
@@ -120,13 +139,13 @@
   ## Perform the default language update.
   #foreach ($wiki in $request.getParameterValues('wikis'))
     #foreach ($space in $request.get('spacesList').split(','))
-      #set ($statement = "where doc.defaultLanguage ='' and doc.language ='' and doc.translation='0' and doc.space like :space escape '!'")
+      #set ($statement = "where doc.defaultLanguage = :defLang and doc.language = :lang and doc.translation='0' and doc.space like :space escape '!'")
        ## If the hidden documents are not supposed to be included, add a filter to include only documents which don't have hidden flag set.
       #if (!$includeHidden)
         #set ($statement = "$statement and (doc.hidden &lt;&gt; true or doc.hidden is null)")
       #end
       #set ($spaceLike = $space.replaceAll('([%_!])', '!$1').concat('%'))
-      #set ($query = $services.query.xwql($statement).bindValue('space', $spaceLike).setWiki($wiki))
+      #set ($query = $services.query.xwql($statement).bindValue('space', $spaceLike).bindValue('defLang', $defLang).bindValue('lang', $lang).setWiki($wiki))
       #set ($results = $query.execute())
       #foreach ($result in $results)
         #set ($langDocument = $xwiki.getDocument("$wiki:$result").getDocument())
@@ -161,6 +180,8 @@
       &lt;/div&gt;
       &lt;div&gt;
         &lt;input type="hidden" name="spacesList" value="$request.get('spacesList')" /&gt;
+        &lt;input type="hidden" name="defLang" value="$!request.defLang" /&gt;
+        &lt;input type="hidden" name="lang" value="$!request.lang" /&gt;
         &lt;input type="hidden" name="langToSet" value="$!request.langToSet" /&gt;
         #if ("$!request.includeHidden" == 'true')
           &lt;input type="hidden" name="includeHidden" value="true" /&gt;

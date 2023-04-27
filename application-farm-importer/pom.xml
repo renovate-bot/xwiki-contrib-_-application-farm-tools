@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.xwiki.contrib.farmtools</groupId>
     <artifactId>application-farm-tools-parent</artifactId>
-    <version>2.6-SNAPSHOT</version>
+    <version>2.5.1</version>
   </parent>
   <artifactId>application-farm-importer</artifactId>
   <packaging>xar</packaging>

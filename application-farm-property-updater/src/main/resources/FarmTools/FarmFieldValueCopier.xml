@@ -64,7 +64,7 @@ This application allows to replace a field value for an object of a document by 
         &lt;/dd&gt;
         &lt;dt&gt;&lt;label&gt;Property:&lt;/label&gt;
         &lt;div class="xHint"&gt;
-          Properties that designate metadata of the document can be used such as "doc.content". In this case, the class will not be used.
+          Properties that designate metadata of the document can be used such as "doc.content" or "doc.title". In this case, the class will not be used.
         &lt;/div&gt;
         &lt;/dt&gt;
         &lt;dd&gt;
@@ -93,7 +93,7 @@ This application allows to replace a field value for an object of a document by 
         &lt;/dd&gt;
         &lt;dt&gt;&lt;label&gt;Property:&lt;/label&gt;
         &lt;div class="xHint"&gt;
-          Properties that designate metadata of the document can be used such as "doc.content". In this case, the class will not be used.
+          Properties that designate metadata of the document can be used such as "doc.content" or "doc.title". In this case, the class will not be used.
         &lt;/div&gt;
         &lt;/dt&gt;
         &lt;dd&gt;
@@ -101,7 +101,7 @@ This application allows to replace a field value for an object of a document by 
         &lt;/dd&gt;
         &lt;dt&gt;&lt;label&gt;Create object if not present?&lt;/label&gt;
         &lt;div class="xHint"&gt;
-          Checking this box will create the target object (of the target class), if not already present in the target document. &lt;br /&gt;Does not apply for the document metadata properties, such as doc.content.
+          Checking this box will create the target object (of the target class), if not already present in the target document. &lt;br /&gt;Does not apply for the document metadata properties, such as doc.content or doc.title.
         &lt;/div&gt;
         &lt;/dt&gt;
         &lt;dd&gt;&lt;input type="checkbox" name="createobject" value="true" /&gt;&lt;/dd&gt;
@@ -132,7 +132,7 @@ This application allows to replace a field value for an object of a document by 
   {{/html}}
 
 #elseif($xaction == 'prepare')
-  #set($knownDocProps = ['doc.content'])
+  #set($knownDocProps = ['doc.content', 'doc.title'])
   #set($sourceDocFullName = "$!{request.getParameter('source_docfullname')}")
   #set($sourceProperty = "$!{request.getParameter('source_property')}")
   #set($sourceClass = "$!{request.getParameter('source_class')}")
@@ -155,6 +155,9 @@ This application allows to replace a field value for an object of a document by 
       #if ($sourceProperty == 'doc.content')
         #set($replacement = $docToRead.content)
       #end
+      #if ($sourceProperty == 'doc.title')
+        #set($replacement = $docToRead.title)
+      #end
     #else
       #set($objToRead = $docToRead.getObject("$sourceClass"))
       #set($replacement = "$!objToRead.getProperty($sourceProperty).value")
@@ -165,6 +168,9 @@ This application allows to replace a field value for an object of a document by 
     #if ($knownDocProps.contains($targetProperty))
       #if ($targetProperty == 'doc.content')
         #set($propValue = $docToChange.content)
+      #end
+      #if ($targetProperty == 'doc.title')
+        #set($propValue = $docToChange.title)
       #end
     #else
       #set($objToChange = $docToChange.getObject("$targetClass", $createObject))
@@ -204,7 +210,7 @@ This application allows to replace a field value for an object of a document by 
 {{/html}}
 
 #elseif($xaction == 'perform')
-  #set($knownDocProps = ['doc.content'])
+  #set($knownDocProps = ['doc.content', 'doc.title'])
   #set($sourceDocFullName = "$!{request.getParameter('source_docfullname')}")
   #set($sourceProperty = "$!{request.getParameter('source_property')}")
   #set($sourceClass = "$!{request.getParameter('source_class')}")
@@ -227,6 +233,9 @@ This application allows to replace a field value for an object of a document by 
       #if ($sourceProperty == 'doc.content')
         #set($replacement = $docToRead.content)
       #end
+      #if ($sourceProperty == 'doc.title')
+        #set($replacement = $docToRead.title)
+      #end
     #else
       #set($objToRead = $docToRead.getObject("$sourceClass"))
       #set($replacement = "$!objToRead.getProperty($sourceProperty).value")
@@ -237,6 +246,9 @@ This application allows to replace a field value for an object of a document by 
     #if ($knownDocProps.contains($targetProperty))
       #if ($targetProperty == 'doc.content')
         #set($propValue = $docToChange.content)
+      #end
+      #if ($targetProperty == 'doc.title')
+        #set($propValue = $docToChange.title)
       #end
     #else
       #set($objToChange = $docToChange.getObject("$targetClass", $createObject))
@@ -252,6 +264,10 @@ This application allows to replace a field value for an object of a document by 
       #if ($knownDocProps.contains($targetProperty))
         #if($targetProperty == 'doc.content')
           #set($discard = $docToChange.setContent($replacement))
+          #set($needsSave = true)
+        #end
+        #if($targetProperty == 'doc.title')
+          #set($discard = $docToChange.setTitle($replacement))
           #set($needsSave = true)
         #end
       #elseif("$!objToChange" != '')

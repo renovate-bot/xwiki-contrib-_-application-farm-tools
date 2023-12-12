@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.xwiki.contrib.farmtools</groupId>
     <artifactId>application-farm-tools-parent</artifactId>
-    <version>2.7-SNAPSHOT</version>
+    <version>2.7</version>
   </parent>
   <artifactId>application-farm-pages-deleter</artifactId>
   <packaging>xar</packaging>

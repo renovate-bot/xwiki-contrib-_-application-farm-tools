@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.2" reference="FarmTools.FarmRightsAdd" locale="">
+  <web>FarmTools</web>
+  <name>FarmRightsAdd</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1702394158000</creationDate>
+  <parent>FarmTools.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1702398581000</date>
+  <contentUpdateDate>1702398581000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Farm Rights Add</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.0</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+#set($xaction = "$!{request.getParameter('xaction')}")
+#set($prefsDoc = $xwiki.getDocument("XWiki.XWikiPreferences"))
+
+This application allows to add rights on a page, on any selected document from the wiki (the name will be given unprefixed and will be applied on all the wikis).
+
+#if($xaction == '')
+
+  {{html}}
+    &lt;form id="prepareform" action="$doc.getURL('view')" method="post" class="xform"&gt;
+      &lt;div&gt;&lt;input type="hidden" name="xaction" value="prepare"/&gt;&lt;/div&gt;
+      &lt;dl class="half"&gt;
+        &lt;dt&gt;&lt;label&gt;Document:&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type="text" name="docfullname"/&gt;
+        &lt;/dd&gt;      
+        &lt;dt&gt;&lt;label&gt;Rights type:&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input type='radio' name='rightsclass' value='XWiki.XWikiGlobalRights' checked='checked'&gt;Inherited rights (XWiki.XWikiGlobalRights)&lt;/input&gt;&lt;br /&gt;
+          &lt;input type='radio' name='rightsclass' value='XWiki.XWikiRights'&gt;Page rights (XWiki.XWikiRights)&lt;/input&gt;
+        &lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Groups (comma separated):&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="text" name="groups"/&gt;&lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Users (comma separated):&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="text" name="users"/&gt;&lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Rights (comma separated):&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;&lt;input type="text" name="rights"/&gt;&lt;/dd&gt;
+        &lt;dt&gt;&lt;label&gt;Allow/deny:&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;select name='allowdeny'&gt;
+            &lt;option value='1'&gt;Allow&lt;/option&gt;
+            &lt;option value='0'&gt;Deny&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;&lt;label&gt;Wikis:&lt;/label&gt;&lt;/dt&gt;
+        &lt;dd&gt;
+          #set($wikis = $services.wiki.getAllIds())
+          #set($aThirdOfWikis = $wikis.size() / 3)
+          #set($twoThirdsOfWikis = $aThirdOfWikis * 2)
+          &lt;div class="column third"&gt;
+          &lt;ul&gt;
+          #foreach($wiki in $wikis)
+            &lt;li&gt;&lt;input name="wikis" type="checkbox" value="$wiki"&gt;$wiki&lt;/input&gt;&lt;/li&gt;
+            #if ($velocityCount == $aThirdOfWikis || $velocityCount == $twoThirdsOfWikis)
+              &lt;/ul&gt;&lt;/div&gt;
+              &lt;div class="column third"&gt;&lt;ul&gt;
+            #end
+          #end
+          &lt;/ul&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;div class="buttonwrapper"&gt;
+        &lt;input class="button" type="submit" value="Preview"/&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  {{/html}}
+
+#elseif($xaction == 'prepare')
+  #set($docFullName = "$!{request.getParameter('docfullname')}")
+  #set($rightsclass = "XWiki.XWikiGlobalRights")
+  #if ("$!{request.getParameter('rightsclass')}" == 'XWiki.XWikiRights')
+    #set($rightsclass = 'XWiki.XWikiRights')
+  #end
+  #set($groups = "$!{request.getParameter('groups')}")
+  #set($users = "$!{request.getParameter('users')}")
+  #set($rights = "$!{request.getParameter('rights')}")
+  #set($allowdeny = 1)
+  #if ("$!{request.getParameter('allowdeny')}" == '0')
+    #set($allowdeny = 0)
+  #end
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    #if($wiki != 'xwiki')
+      #set($docToChange = $xwiki.getDocument("${wiki}:${docFullName}"))
+      * $wiki
+      ** Document to change: [[$docToChange.prefixedFullName]]
+      ** Existing $rightsclass objects: $docToChange.getObjects($rightsclass).size()
+      ** Object to add: $rightsclass for users $users, groups $groups and rights #if($allowdeny)allowed#{else}denied#end $rights
+    #end
+  #end
+
+{{html}}
+  &lt;form id="performform" action="$doc.getURL('view')" method="post"&gt;
+    &lt;div&gt;
+      &lt;input type="hidden" name="xaction" value="perform"/&gt;
+      &lt;input type="hidden" name="docfullname" value="$escapetool.xml($docFullName)" /&gt;
+      &lt;input type="hidden" name="rightsclass" value="$escapetool.xml($rightsclass)"/&gt;
+      &lt;input type="hidden" name="groups" value="$escapetool.xml($groups)"/&gt;
+      &lt;input type="hidden" name="users" value="$escapetool.xml($users)"/&gt;
+      &lt;input type="hidden" name="rights" value="$escapetool.xml($rights)"/&gt;
+      &lt;input type="hidden" name="allowdeny" value="$escapetool.xml($allowdeny)"/&gt;
+      #foreach($wiki in $request.getParameterValues('wikis'))
+        &lt;input type="hidden" name="wikis" value="$wiki" /&gt;
+      #end
+    &lt;/div&gt;
+    &lt;div class="buttonwrapper"&gt;
+      &lt;input class="button" type="submit" value="Apply the modifications"/&gt;
+    &lt;/div&gt;
+  &lt;/form&gt;
+{{/html}}
+  
+#elseif($xaction == 'perform')
+  #set($docFullName = "$!{request.getParameter('docfullname')}")
+  #set($rightsclass = "XWiki.XWikiGlobalRights")
+  #if ("$!{request.getParameter('rightsclass')}" == 'XWiki.XWikiRights')
+    #set($rightsclass = 'XWiki.XWikiRights')
+  #end
+  #set($groups = "$!{request.getParameter('groups')}")
+  #set($users = "$!{request.getParameter('users')}")
+  #set($rights = "$!{request.getParameter('rights')}")
+  #set($allowdeny = 1)
+  #if ("$!{request.getParameter('allowdeny')}" == '0')
+    #set($allowdeny = 0)
+  #end
+  #foreach($wiki in $request.getParameterValues('wikis'))
+    #if($wiki != 'xwiki')
+      #set($docToChange = $xwiki.getDocument("${wiki}:${docFullName}"))
+      * $wiki
+      ** Document to change: [[$docToChange.prefixedFullName]]
+      ** Existing $rightsclass objects: $docToChange.getObjects($rightsclass).size()
+      ** Object added: $rightsclass for users $users, groups $groups and rights #if($allowdeny)allowed#{else}denied#end $rights
+      #set($rightsObjectAdded = $null)
+      #set($rightsObjectAdded = $docToChange.newObject($rightsclass))
+      #set($discard = $rightsObjectAdded.set('groups', $groups))
+      #set($discard = $rightsObjectAdded.set('users', $users))
+      #set($discard = $rightsObjectAdded.set('levels', $rights))
+      #set($discard = $rightsObjectAdded.set('allow', $allowdeny))
+      #set($discard = $docToChange.save()) 
+    #end
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>

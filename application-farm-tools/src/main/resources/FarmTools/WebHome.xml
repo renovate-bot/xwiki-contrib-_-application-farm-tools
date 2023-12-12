@@ -81,6 +81,10 @@ The last tool, the page objects deleter, allows to delete objects from the same 
 
 This tools allows to fetch a status of objects of a given type on a given document on all the wikis of the farm. It does not make any modification, is only to consult the state of the objects on wikis. Can be used to check rights objects on all wikis of the farm or to check presence of tags or comments on a given document of the wiki, to validate that a document can be overwritten before using the importer, for example.
 
+* [[Farm Rights Add&gt;&gt;doc:FarmRightsAdd]]
+
+This tools allows to add rights objects to a wiki, a space or a page (if rights are to be added on the wiki, the document XWiki.XWikiPreferences needs to be set, if the rights are for the space, the WebPreferences page of the space needs to be set). Users, groups, levels and the allow state can be set for the rights objects. This tool does not allow to update objects but only add new ones.
+
 == Farm Class Manager ==
 
 Mass update a class on multiple wikis.
